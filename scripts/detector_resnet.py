@@ -181,7 +181,6 @@ class Detector:
         m = min(10, num_m)
         return np.mean(dists[:m])
 
-
     def camera_callback(self, msg):
         """ callback for camera images """
 
