@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import rospy
 from geometry_msgs.msg import Pose2D, PoseStamped
+from std_msgs.msg import String
 import tf
 
 # if using gmapping, you will have a map frame. otherwise it will be odom frame
@@ -16,10 +17,19 @@ class NavPoseCommander:
         self.theta_g = None
         self.goal_pose_received = False
         self.trans_listener = tf.TransformListener()
+        self.supervisor_is_idle = False
         # command pose for controller
         self.pose_goal_publisher = rospy.Publisher('/cmd_nav', Pose2D, queue_size=10)
         rospy.Subscriber('/move_base_simple/goal', PoseStamped, self.rviz_goal_callback)
+        rospy.Subscriber('/supervisor_is_idle', String, self.supervisor_is_idle_callback)
         
+    def supervisor_is_idle_callback(self, msg):
+        if msg.data=="True":
+            self.supervisor_is_idle = True
+        else: 
+            self.supervisor_is_idle = False
+
+
     def rviz_goal_callback(self, msg):
         """ callback for a pose goal sent through rviz """
         rospy.loginfo("rviz command received!")
@@ -47,11 +57,14 @@ class NavPoseCommander:
         pose_g_msg.y = self.y_g
         pose_g_msg.theta = self.theta_g
         self.pose_goal_publisher.publish(pose_g_msg)
-        self.goal_pose_received = False
+        #self.goal_pose_received = False
 
     def loop(self):
-        if self.goal_pose_received:
+
+        if self.supervisor_is_idle and self.goal_pose_received:
             self.publish_goal_pose()
+        elif not self.supervisor_is_idle:
+            self.goal_pose_received = False
 
     def run(self):
         rate = rospy.Rate(10) # 10 Hz

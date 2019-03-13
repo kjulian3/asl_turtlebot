@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 import rospy
-from visualization_msgs.msg import Marker
+from visualization_msgs.msg import Marker, MarkerArray
 from geometry_msgs.msg import Twist, PoseArray, Pose2D, Pose, Point, Quaternion, PoseStamped
+from std_msgs.msg import String
 import tf
 from copy import deepcopy
 import numpy as np
@@ -20,6 +21,60 @@ class Turtlebot_Marker:
 		self.goal_pose_arrow = None
 		self.trans_listener = tf.TransformListener()
 		rospy.Subscriber('/move_base_simple/goal', PoseStamped, self.goal_callback)
+
+		self.food_pub = rospy.Publisher("markers_food", MarkerArray, queue_size=10)
+		rospy.Subscriber('/food_locations', String, self.food_callback)
+
+	def food_callback(self,msg):
+		food_list = msg.data.split(';')
+		markerArray = MarkerArray()
+		for food in food_list:
+			food_items = food.split(',')
+			name   = food_items[0]
+			id_num = food_items[1]
+			x      = food_items[2]
+			y      = food_items[3]
+			conf   = food_items[4]
+
+			marker = Marker()
+			marker.header.frame_id = "map"
+			marker.header.stamp = rospy.Time(0)
+			marker.ns = name+"_mark"
+			marker.action=Marker.ADD
+			marker.type=3
+			marker.scale.x = .15
+			marker.scale.y = .15
+			marker.scale.z = .01
+			marker.color.r = 1.0
+			marker.color.g = 0.0
+			marker.color.b = 0.0
+			marker.color.a = 1.0
+			marker.pose.position.x = x
+			marker.pose.position.y = y
+			marker.pose.position.z = 0.05
+			marker.lifetime = rospy.Duration(20)
+			markerArray.markers.append(marker)
+
+			marker = Marker()
+			marker.header.frame_id = "map"
+			marker.header.stamp = rospy.Time(0)
+			marker.ns = name+"_text"
+			marker.action=Marker.ADD
+			marker.type=9
+			marker.scale.z = .2
+			marker.color.r = 0.0
+			marker.color.g = 0.0
+			marker.color.b = 0.0
+			marker.color.a = 1.0
+			marker.pose.position.x = x
+			marker.pose.position.y = y
+			marker.pose.position.z = 0.05
+			marker.lifetime = rospy.Duration(20)
+			marker.text=name
+			markerArray.markers.append(marker)
+		if len(markerArray.markers)==0: return
+		self.food_pub.publish(markerArray)
+
 
 	def make_marker(self):
 		self.slam_marker = Marker()
