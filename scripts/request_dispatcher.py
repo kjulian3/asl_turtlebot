@@ -40,12 +40,14 @@ class RequestDispatcher:
             item_y_map = float(fields[3])
             item_confidence = float(fields[4])
             self.food_locations[item_name] = (item_x_map, item_y_map)
-        rospy.loginfo("I now have:")
-        rospy.loginfo(str(self.food_locations))
+        #rospy.loginfo("I now have:")
+        #rospy.loginfo(str(self.food_locations))
 
     def process_request_callback(self, msg):
         """ callback for a pose goal sent through the request_publisher node """
         rospy.loginfo("Request received!")
+        rospy.loginfo("Current known food locations:")
+        rospy.loginfo(str(self.food_locations))
         if not self.request_received:
             # Reverse the order of the request so we can use pop to get
             # next item
@@ -127,11 +129,10 @@ class RequestDispatcher:
         # Actually do the request processing
         if self.request_received:
             self.process_request()
-        else:
-            rospy.loginfo("Waiting for a request...")
 
     def run(self):
         rate = rospy.Rate(10) # 10 Hz
+        rospy.loginfo("Waiting for a new delivery request...")
         while not rospy.is_shutdown():
             self.loop()
             rate.sleep()

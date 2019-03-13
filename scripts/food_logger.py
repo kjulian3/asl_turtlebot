@@ -13,6 +13,9 @@ import math
 import time
 import std_msgs.msg
 
+COCO_ITEMS = ['bottle', 'banana', 'apple', 'sandwich', 'orange',
+              'brocoli', 'carrot', 'hot_dog', 'pizza', 'donut',
+              'cake', 'dog']
 
 class FoodLog:
 
@@ -20,10 +23,8 @@ class FoodLog:
         rospy.init_node('city_food_logger', anonymous=True)
         self.tf_listener = tf.TransformListener()
 
-
         #setup publisher
         self.food_log_pub = rospy.Publisher('/food_locations', std_msgs.msg.String, queue_size=10)
-
 
         self.config_conf_threshold = 0.4
         # self.last_update_time = time.time()
@@ -43,9 +44,11 @@ class FoodLog:
         self.food_log = dict()
         self.food_log["home"] = ["home", 1, self.x_home, self.x_home, 1.0]
         #Add all possible food options
-        rospy.Subscriber('/detector/bottle', DetectedObject, self.evaluate_food_candidate, queue_size = 1)
-        rospy.Subscriber('/detector/person', DetectedObject, self.evaluate_food_candidate, queue_size = 1)
-        rospy.Subscriber('/detector/dog', DetectedObject, self.evaluate_food_candidate, queue_size = 1)
+        for item in COCO_ITEMS:
+            rospy.Subscriber('/detector/{}'.format(item),
+                                DetectedObject,
+                                self.evaluate_food_candidate,
+                                queue_size = 1)
         # print self.food_log
 
     def evaluate_food_candidate(self, msg):
@@ -66,7 +69,6 @@ class FoodLog:
         else:
             i = len(self.food_log) + 1
             new_item = True
-
 
         (translation, rotation) = self.tf_listener.lookupTransform("/map", '/velodyne', rospy.Time(0))
         Q = tf.transformations.euler_from_quaternion(rotation)[2]
@@ -113,10 +115,6 @@ class FoodLog:
                     t_str += str(c_str[i]) + ";"
                 else:
                     t_str += str(c_str[i]) + ","
-
-
-            # t_str += ";"
-
         self.food_log_pub.publish(t_str[:-1])
         print "finished publishing!: ", t_str
 
