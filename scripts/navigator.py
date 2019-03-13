@@ -133,6 +133,7 @@ class Navigator:
     def run_navigator(self):
         """ computes a path from current state to goal state using A* and sends it to the path controller """
 
+        rospy.loginfo("Navigator: running")
         # makes sure we have a location
         try:
             (translation,rotation) = self.trans_listener.lookupTransform('/map', '/base_footprint', rospy.Time(0))
@@ -177,6 +178,7 @@ class Navigator:
 
             rospy.loginfo("Navigator: Computing navigation plan")
             if problem.solve():
+                rospy.loginfo("Navigator: Finished A*, executing")
                 if len(problem.path) > 3:
                     # cubic spline interpolation requires 4 points
                     self.current_plan = problem.path
@@ -218,6 +220,7 @@ class Navigator:
                     # plt.plot(path_t,path_y,'bo')
                     # plt.plot(t_test,scipy.interpolate.splev(t_test,self.path_y_spline,der=0))
                     # plt.show()
+                    rospy.loginfo("Navigator: came up with a navigation plan")
                 else:
                     rospy.logwarn("Navigator: Path too short, not updating")
             else:

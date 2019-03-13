@@ -72,13 +72,13 @@ class AStar(object):
     #           x - tuple state
     # OUTPUT: List of neighbors that are free, as a list of TUPLES
     def get_neighbors(self, x):
-    	neighs = []
-    	currentX = self.snap_to_grid(x)
-    	for dx in [-self.resolution,0.0, self.resolution]:
-    		for dy in [-self.resolution,0.0, self.resolution]:
-    			nextX = self.snap_to_grid((currentX[0]+dx,currentX[1]+dy))
-    			if (nextX[0]!=currentX[0] or nextX[1] != currentX[1]) and self.is_free(nextX):
-    				neighs.append(nextX)
+        neighs = []
+        currentX = self.snap_to_grid(x)
+        for dx in [-self.resolution,0.0, self.resolution]:
+            for dy in [-self.resolution,0.0, self.resolution]:
+                nextX = self.snap_to_grid((currentX[0]+dx,currentX[1]+dy))
+                if (nextX[0]!=currentX[0] or nextX[1] != currentX[1]) and self.is_free(nextX):
+                    neighs.append(nextX)
         return neighs
 
     # Gets the state in open_set that has the lowest f_score
@@ -127,24 +127,24 @@ class AStar(object):
     # OUTPUT: Boolean, True if a solution from x_init to x_goal was found
     def solve(self):
         while len(self.open_set)>0:
-        	x_current = self.find_best_f_score()
-        	if x_current == self.x_goal:
-        		self.path = self.reconstruct_path()
-        		return True
+            x_current = self.find_best_f_score()
+            if x_current == self.x_goal:
+                self.path = self.reconstruct_path()
+                return True
 
-        	self.open_set.remove(x_current)
-        	self.closed_set.append(x_current)
-        	for nextX in self.get_neighbors(x_current):
-        		if nextX in self.closed_set:
-        			continue
-        		tent_g = self.g_score[x_current] + self.distance(x_current,nextX)
-        		if nextX not in self.open_set:
-        			self.open_set.append(nextX)
-        		elif tent_g > self.g_score[nextX]:
-        			continue
-        		self.came_from[nextX] = x_current
-        		self.g_score[nextX] = tent_g
-        		self.f_score[nextX] = tent_g + self.distance(nextX,self.x_goal)
+            self.open_set.remove(x_current)
+            self.closed_set.append(x_current)
+            for nextX in self.get_neighbors(x_current):
+                if nextX in self.closed_set:
+                    continue
+                tent_g = self.g_score[x_current] + self.distance(x_current,nextX)
+                if nextX not in self.open_set:
+                    self.open_set.append(nextX)
+                elif tent_g > self.g_score[nextX]:
+                    continue
+                self.came_from[nextX] = x_current
+                self.g_score[nextX] = tent_g
+                self.f_score[nextX] = tent_g + self.distance(nextX,self.x_goal)
 
         return False
 
