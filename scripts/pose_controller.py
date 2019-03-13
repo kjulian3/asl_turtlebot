@@ -19,10 +19,10 @@ K3 = 0.8
 TIMEOUT = np.inf
 
 # maximum velocity
-V_MAX = 0.2
+V_MAX = 0.15
 
 # maximim angular velocity
-W_MAX = 1
+W_MAX = 0.8
 
 # if sim is True/using gazebo, therefore want to subscribe to /gazebo/model_states\
 # otherwise, they will use a TF lookup (hw2+)
@@ -90,6 +90,7 @@ class PoseController:
         self.y_g = data.y
         self.theta_g = data.theta
         ######### END OF YOUR CODE ##########
+        rospy.loginfo("Received command on cmd_pose: x:{}, y:{}, th:{}".format(self.x_g, self.y_g, self.theta_g))
         self.cmd_pose_time = rospy.get_rostime()
 
 

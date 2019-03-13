@@ -145,7 +145,7 @@ class AStar(object):
                 self.came_from[nextX] = x_current
                 self.g_score[nextX] = tent_g
                 self.f_score[nextX] = tent_g + self.distance(nextX,self.x_goal)
-
+            print("Astar: open set length: " + str(len(self.open_set)))
         return False
 
 # A 2D state space grid with a set of rectangular obstacles. The grid is fully deterministic
