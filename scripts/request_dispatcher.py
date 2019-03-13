@@ -24,6 +24,7 @@ class RequestDispatcher:
         self.request = None
         self.request_received = False
         self.food_locations = {}
+        self.trans_listener = tf.TransformListener()
         # command pose for controller
         self.nav_pose_publisher = rospy.Publisher('/nav_pose', Pose2D, queue_size=10)
         rospy.Subscriber('/delivery_request', String, self.process_request_callback)
