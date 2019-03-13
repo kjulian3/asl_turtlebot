@@ -32,7 +32,7 @@ class RequestDispatcher:
         rospy.Subscriber('/food_locations', String, self.food_location_callback)
 
     def food_location_callback(self, msg):
-        for item in msg.split(";"):
+        for item in msg.data.split(";"):
             fields = item.split(",")
             item_name = fields[0]
             item_id = float(fields[1])
@@ -49,7 +49,7 @@ class RequestDispatcher:
         if not self.request_received:
             # Reverse the order of the request so we can use pop to get
             # next item
-            self.request = msg.split(",")[::-1]
+            self.request = msg.data.split(",")[::-1]
             self.request_received = True
             self.current_item = self.request.pop()
             rospy.loginfo("Received order:")
@@ -69,7 +69,7 @@ class RequestDispatcher:
 
     def nav_to_current_item(self):
         if self.current_item in self.food_locations.keys():
-            self.publish_goal_nav_pose(item)
+            self.publish_goal_nav_pose(self.current_item)
         else:
             rospy.loginfo("No location for {} is known. Looking for next item...".format(self.current_item))
             # Skip the current item
