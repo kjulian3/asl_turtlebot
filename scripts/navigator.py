@@ -60,6 +60,7 @@ class Navigator:
         self.x_g = 0.0
         self.y_g = 0.0
         self.theta_g = 0.0
+        self.goal_pose_received = False
 
         self.current_plan = []
 
@@ -95,7 +96,7 @@ class Navigator:
         self.x_g = data.x
         self.y_g = data.y
         self.theta_g = data.theta
-        self.run_navigator()
+        self.goal_pose_received = True
 
     def map_md_callback(self, msg):
         self.map_width = msg.width
@@ -140,11 +141,13 @@ class Navigator:
             self.theta = euler[2]
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             self.current_plan = []
+            self.goal_pose_received = False
             return
 
         # makes sure we have a map
         if not self.occupancy:
             self.current_plan = []
+            self.goal_pose_received = False
             return
 
         # if close to the goal, use the pose_controller instead
@@ -157,6 +160,7 @@ class Navigator:
             self.nav_pose_pub.publish(pose_g_msg)
             self.current_plan = []
             self.V_prev = 0
+            self.goal_pose_received = False
             return
 
         # if there is no plan, we are far from the start of the plan,
@@ -225,7 +229,7 @@ class Navigator:
             # if currently not moving, first line up with the plan
             if self.V_prev == 0:
                 theta_init = np.arctan2(self.current_plan[1][1]-self.current_plan[0][1],self.current_plan[1][0]-self.current_plan[0][0])
-                theta_err = theta_init-self.theta
+                theta_err = wrapToPi(theta_init-self.theta)
                 if abs(theta_err)>THETA_START_THRESH:
                     cmd_msg = Twist()
                     cmd_msg.linear.x = 0
@@ -302,7 +306,16 @@ class Navigator:
         cmd_msg.angular.z = cmd_theta_dot
         self.nav_vel_pub.publish(cmd_msg)
 
+    def loop(self):
+        if self.goal_pose_received:
+            self.run_navigator()
+
+    def run(self):
+        rate = rospy.Rate(20) # 10 Hz
+        while not rospy.is_shutdown():
+            self.loop()
+            rate.sleep()
 
 if __name__ == '__main__':
     nav = Navigator()
-    rospy.spin()
+    nav.run()

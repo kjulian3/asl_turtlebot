@@ -121,11 +121,14 @@ class PoseController:
             R = np.array([[np.cos(self.theta_g), np.sin(self.theta_g)], [-np.sin(self.theta_g), np.cos(self.theta_g)]])
             rel_coords_rot = np.dot(R,rel_coords)
 
-            th_rot = self.theta-self.theta_g 
+            th_rot = wrapToPi(self.theta-self.theta_g)
             rho = linalg.norm(rel_coords) 
 
-            if (rho < 0.03) & (th_rot < 0.08):
+            if (rho < 0.05) and (abs(th_rot) < 0.08):
                 rospy.loginfo("Close to goal: commanding zero controls")
+                print(self.theta)
+                print(self.theta_g)
+                print("SHOULD BE UNDER 0.08: %.2f"%th_rot)
                 self.x_g = None
                 self.y_g = None
                 self.theta_g = None
