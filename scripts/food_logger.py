@@ -29,9 +29,10 @@ class FoodLog:
         # self.last_update_time = time.time()
         # raw_input("wait here")
         # Set initial location ("home")
-        (home_location_triad, home_rotation_triad) = self.tf_listener.lookupTransform("/map", '/velodyne', rospy.Time(0))
-        self.x_home = home_location_triad[0]
-        self.y_home = home_location_triad[1]
+        # self.tf_listener.waitForTransform("/map",'/velodyne', rospy.Time.now(),rospy.Duration(20.0))
+        # (home_location_triad, home_rotation_triad) = self.tf_listener.lookupTransform("/map", '/velodyne', rospy.Time(0))
+        self.x_home = 0.0 #home_location_triad[0]
+        self.y_home = 0.0 #home_location_triad[1]
 
         #initialize log "entries"
         # self.x_coords = np.zeros((1))
@@ -70,8 +71,8 @@ class FoodLog:
         (translation, rotation) = self.tf_listener.lookupTransform("/map", '/velodyne', rospy.Time(0))
         Q = tf.transformations.euler_from_quaternion(rotation)[2]
 
-        x_bot = translation[0] * np.sin(Q)
-        y_bot = translation[1] * np.cos(Q)
+        x_bot = translation[0]
+        y_bot = translation[1]
 
         L = dist * (np.tan(th_l) + np.tan(th_r))
         Ay = np.sign(th_r - th_l) * L * 0.5
