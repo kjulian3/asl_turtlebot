@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import rospy
 import os
 # watch out on the order for the next two imports lol
@@ -8,7 +10,9 @@ from asl_turtlebot.msg import DetectedObject
 from cv_bridge import CvBridge, CvBridgeError
 import cv2
 import math
+import time
 import std_msgs.msg
+
 
 class FoodLog:
 
@@ -26,14 +30,22 @@ class FoodLog:
 
 
         self.config_conf_threshold = 0.4
+        # self.last_update_time = time.time()
+        # raw_input("wait here")
+        # Set initial location ("home")
+        (home_location_triad, home_rotation_triad) = self.tf_listener.lookupTransform("/map", '/velodyne', rospy.Time(0))
+        self.x_home = home_location_triad[0]
+        self.y_home = home_location_triad[1]
 
         #initialize log "entries"
-        self.x_coords = np.zeros((1))
-        self.y_coords = np.zeros((1))
-        self.max_confs = np.zeros((1))
+        # self.x_coords = np.zeros((1))
+        # self.y_coords = np.zeros((1))
+        # self.max_confs = np.zeros((1))
         #self.max_confs[0] = 0.0
         self.index = dict()
         self.food_log = dict()
+        self.food_log["home"] = ["home", 1, self.x_home, self.x_home, 1.0]
+        # print self.food_log
 
     def evaluate_food_candidate(self, msg):
         #print "Evaluating food item"
@@ -80,10 +92,12 @@ class FoodLog:
             if msg.confidence >= self.food_log[name][4]:
                 print "Updating confidence of " , name
                 self.food_log[name] = [name, i, x_item_coord, y_item_coord, msg.confidence]
+                self.last_update_time = time.time()
 
 
     def loop(self):
         print "-----------------------------"
+        print "Last updated (ros time):" #, self.last_update_time
         print self.food_log
         print " ============================"
         # (translation, rotation) = self.tf_listener.lookupTransform("/map", '/velodyne', rospy.Time(0))
@@ -103,10 +117,11 @@ class FoodLog:
             # t_str += ";"
 
         self.food_log_pub.publish(t_str[:-1])
+        print "finished publishing!: ", t_str
 
 
     def run(self):
-        rate = rospy.Rate(1) # 50 Hz
+        rate = rospy.Rate(50) # 50 Hz
         while not rospy.is_shutdown():
             self.loop()
             rate.sleep()
