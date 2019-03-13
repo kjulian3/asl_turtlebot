@@ -20,10 +20,13 @@ class Turtlebot_Marker:
 		self.goal_pose  = None
 		self.goal_pose_arrow = None
 		self.trans_listener = tf.TransformListener()
-		rospy.Subscriber('/move_base_simple/goal', PoseStamped, self.goal_callback)
+		#rospy.Subscriber('/move_base_simple/goal', PoseStamped, self.goal_callback)
+		rospy.Subscriber('/cmd_nav', Pose2D, self.goal_callback)
 
 		self.food_pub = rospy.Publisher("markers_food", MarkerArray, queue_size=10)
 		rospy.Subscriber('/food_locations', String, self.food_callback)
+
+
 
 	def food_callback(self,msg):
 		food_list = msg.data.split(';')
@@ -31,10 +34,10 @@ class Turtlebot_Marker:
 		for food in food_list:
 			food_items = food.split(',')
 			name   = food_items[0]
-			id_num = food_items[1]
-			x      = food_items[2]
-			y      = food_items[3]
-			conf   = food_items[4]
+			id_num = int(food_items[1])
+			x      = float(food_items[2])
+			y      = float(food_items[3])
+			conf   = float(food_items[4])
 
 			marker = Marker()
 			marker.header.frame_id = "map"
@@ -152,6 +155,24 @@ class Turtlebot_Marker:
 		self.arrow_pub.publish(self.arrow_marker)
 
 	def goal_callback(self, msg):
+
+		self.goal_pose = Pose()
+		self.goal_pose.position.x = msg.x
+		self.goal_pose.position.y = msg.y
+		theta = msg.theta
+		quat = tf.transformations.quaternion_from_euler(0,0,theta)
+		self.goal_pose.orientation.x = quat[0]
+		self.goal_pose.orientation.y = quat[1]
+		self.goal_pose.orientation.z = quat[2]
+		self.goal_pose.orientation.w = quat[3]
+
+		self.goal_pose_arrow = deepcopy(self.goal_pose)
+		theta = msg.theta
+
+		self.goal_pose_arrow.position.x += 0.075*np.cos(theta)
+		self.goal_pose_arrow.position.y += 0.075*np.sin(theta)
+
+	def goal_callback_old(self, msg):
 		""" callback for a pose goal sent through rviz """
 		origin_frame = "/map" if mapping else "/odom"
 		try:

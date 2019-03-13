@@ -20,7 +20,7 @@ PATH_TO_LABELS = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../t
 # False will use a very simple color thresholding to detect stop signs only
 USE_TF = True
 # minimum score for positive detection
-MIN_SCORE = .5
+MIN_SCORE = .10
 
 def load_object_labels(filename):
     """ loads the coco object readable name """
@@ -72,8 +72,11 @@ class Detector:
 
         self.object_publishers = {}
         self.object_labels = load_object_labels(PATH_TO_LABELS)
+        #self.valid_labels  = self.object_labels.copy()
+        self.valid_labels = [1,18,44,52,53,54,55,56,57,58,59,60,61]
 
         self.tf_listener = TransformListener()
+        self.marked_image_publisher = rospy.Publisher('/marked_images/image_raw', Image, queue_size=10)
         rospy.Subscriber('/raspicam_node/image_raw', Image, self.camera_callback, queue_size=1, buff_size=2**24)
         rospy.Subscriber('/raspicam_node/image/compressed', CompressedImage, self.compressed_camera_callback, queue_size=1, buff_size=2**24)
         rospy.Subscriber('/raspicam_node/camera_info', CameraInfo, self.camera_info_callback)
@@ -124,7 +127,7 @@ class Detector:
         f_num = 0
 
         for i in range(num):
-            if scores[i] >= MIN_SCORE:
+            if scores[i] >= MIN_SCORE and int(classes[i]) in self.valid_labels:
                 f_scores.append(scores[i])
                 f_boxes.append(boxes[i])
                 f_classes.append(int(classes[i]))
@@ -229,6 +232,7 @@ class Detector:
                 ycen = int(0.5*(ymax-ymin)+ymin)
 
                 cv2.rectangle(img_bgr8, (xmin,ymin), (xmax,ymax), (255,0,0), 2)
+                cv2.putText(img_bgr8, self.object_labels[cl], (xmin,ymax),cv2.FONT_HERSHEY_SIMPLEX,1,(0,0,255),2,cv2.LINE_AA)
 
                 # computes the vectors in camera frame corresponding to each sides of the box
                 rayleft = self.project_pixel_to_ray(xmin,ycen)
@@ -269,6 +273,9 @@ class Detector:
         # displays the camera image
         #cv2.imshow("Camera", img_bgr8)
         #cv2.waitKey(1)
+	
+        msg = self.bridge.cv2_to_imgmsg(img_bgr8, "bgr8")
+        self.marked_image_publisher.publish(msg)
 
     def camera_info_callback(self, msg):
         """ extracts relevant camera intrinsic parameters from the camera_info message.
