@@ -9,7 +9,7 @@ use_gazebo = rospy.get_param("sim")
 mapping = rospy.get_param("map")
 
 # Thresholds for location
-POS_EPS = .1
+POS_EPS = .25
 THETA_EPS = 2*np.pi
 
 class RequestDispatcher:
@@ -62,7 +62,7 @@ class RequestDispatcher:
 
     def close_to(self,x,y,theta):
         """ checks if the robot is at a pose within some threshold """
-        return (abs(x-self.x)<POS_EPS and abs(y-self.y)<POS_EPS and abs(theta-self.theta)<THETA_EPS)
+        return (abs(x-self.x)<POS_EPS and abs(y-self.y)<POS_EPS)# and abs(theta-self.theta)<THETA_EPS)
 
     def has_picked_up(self):
         return self.close_to(x=self.food_locations[self.current_item][0],
@@ -107,7 +107,7 @@ class RequestDispatcher:
         nav_pose_msg = Pose2D()
         nav_pose_msg.x = self.food_locations[item][0]
         nav_pose_msg.y = self.food_locations[item][1]
-        nav_pose_msg.theta = 0 # TODO: change for the current robot theta
+        nav_pose_msg.theta = self.theta
         self.nav_pose_publisher.publish(nav_pose_msg)
         # TODO: should I publish this more than once?
 
