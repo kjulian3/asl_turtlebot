@@ -20,10 +20,6 @@ class FoodLog:
         rospy.init_node('city_food_logger', anonymous=True)
         self.tf_listener = tf.TransformListener()
 
-        #Add all possible food options
-        rospy.Subscriber('/detector/bottle', DetectedObject, self.evaluate_food_candidate, queue_size = 1)
-        rospy.Subscriber('/detector/person', DetectedObject, self.evaluate_food_candidate, queue_size = 1)
-        rospy.Subscriber('/detector/dog', DetectedObject, self.evaluate_food_candidate, queue_size = 1)
 
         #setup publisher
         self.food_log_pub = rospy.Publisher('/food_locations', std_msgs.msg.String, queue_size=10)
@@ -45,6 +41,10 @@ class FoodLog:
         self.index = dict()
         self.food_log = dict()
         self.food_log["home"] = ["home", 1, self.x_home, self.x_home, 1.0]
+        #Add all possible food options
+        rospy.Subscriber('/detector/bottle', DetectedObject, self.evaluate_food_candidate, queue_size = 1)
+        rospy.Subscriber('/detector/person', DetectedObject, self.evaluate_food_candidate, queue_size = 1)
+        rospy.Subscriber('/detector/dog', DetectedObject, self.evaluate_food_candidate, queue_size = 1)
         # print self.food_log
 
     def evaluate_food_candidate(self, msg):
@@ -89,7 +89,7 @@ class FoodLog:
             # self.y_coords[i] = y_item_coord
             # self.max_confs[i] = msg.confidence
         else:
-            if msg.confidence >= self.food_log[name][4]:
+            if True: #msg.confidence >= self.food_log[name][4]:
                 print "Updating confidence of " , name
                 self.food_log[name] = [name, i, x_item_coord, y_item_coord, msg.confidence]
                 self.last_update_time = time.time()
