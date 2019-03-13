@@ -71,15 +71,35 @@ class AStar(object):
     # INPUT: (x)
     #           x - tuple state
     # OUTPUT: List of neighbors that are free, as a list of TUPLES
+    # Kyle's implementation
+    # def get_neighbors(self, x):
+    #     neighs = []
+    #     currentX = self.snap_to_grid(x)
+    #     for dx in [-self.resolution,0.0, self.resolution]:
+    #         for dy in [-self.resolution,0.0, self.resolution]:
+    #             nextX = self.snap_to_grid((currentX[0]+dx,currentX[1]+dy))
+    #             if (nextX[0]!=currentX[0] or nextX[1] != currentX[1]) and self.is_free(nextX):
+    #                 neighs.append(nextX)
+    #     return neighs
+
+    # Javier's implementation
     def get_neighbors(self, x):
-        neighs = []
-        currentX = self.snap_to_grid(x)
-        for dx in [-self.resolution,0.0, self.resolution]:
-            for dy in [-self.resolution,0.0, self.resolution]:
-                nextX = self.snap_to_grid((currentX[0]+dx,currentX[1]+dy))
-                if (nextX[0]!=currentX[0] or nextX[1] != currentX[1]) and self.is_free(nextX):
-                    neighs.append(nextX)
-        return neighs
+        # TODO: fill me in!
+        free_neighbors = []
+        x = self.snap_to_grid(x)
+        directions = np.array([[0,1],
+                               [np.sqrt(2), np.sqrt(2)],
+                               [1,0],
+                               [-np.sqrt(2), np.sqrt(2)],
+                               [0,-1],
+                               [-np.sqrt(2), -np.sqrt(2)],
+                               [-1,0],
+                               [np.sqrt(2), -np.sqrt(2)]])
+        for i in range(8):
+            neighbor = self.snap_to_grid(x + directions[i]*self.resolution)
+            if self.is_free(neighbor) and (neighbor[0]!=x[0] or neighbor[1]!=x[1]):
+                free_neighbors.append(neighbor)
+        return free_neighbors
 
     # Gets the state in open_set that has the lowest f_score
     # INPUT: None
