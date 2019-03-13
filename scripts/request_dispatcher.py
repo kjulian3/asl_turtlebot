@@ -2,7 +2,7 @@
 import rospy
 from geometry_msgs.msg import Pose2D, PoseStamped
 import tf
-
+import numpy as np
 from std_msgs.msg import String
 
 use_gazebo = rospy.get_param("sim")
