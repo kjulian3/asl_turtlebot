@@ -62,6 +62,8 @@ class Supervisor:
         # command vel (used for idling)
         self.cmd_vel_publisher = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
 
+        self.supervisor_publisher = rospy.Publisher('/supervisor_is_idle',String, queue_size=10)
+
         # subscribers
         # stop sign detector
         rospy.Subscriber('/detector/stop_sign', DetectedObject, self.stop_sign_detected_callback)
@@ -191,6 +193,11 @@ class Supervisor:
                 self.theta = euler[2]
             except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
                 pass
+
+        if self.mode == Mode.IDLE:
+            self.supervisor_publisher.publish("True")
+        else:
+            self.supervisor_publisher.publish("False")
 
         # logs the current mode
         if not(self.last_mode_printed == self.mode):

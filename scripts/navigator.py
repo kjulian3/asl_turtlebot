@@ -96,7 +96,8 @@ class Navigator:
         self.x_g = data.x
         self.y_g = data.y
         self.theta_g = data.theta
-        self.goal_pose_received = True
+        #self.goal_pose_received = True
+        self.run_navigator()
 
     def map_md_callback(self, msg):
         self.map_width = msg.width
@@ -318,4 +319,5 @@ class Navigator:
 
 if __name__ == '__main__':
     nav = Navigator()
-    nav.run()
+    rospy.spin()
+    #nav.run()
