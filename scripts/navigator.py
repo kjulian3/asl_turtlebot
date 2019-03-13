@@ -26,16 +26,16 @@ START_POS_THRESH = .2
 # thereshold in theta to start moving forward when path following
 THETA_START_THRESH = 0.09
 # P gain on orientation before start
-THETA_START_P = 1
+THETA_START_P = 0.6
 
 # maximum velocity
-V_MAX = .15
+V_MAX = .10
 
 # maximim angular velocity
-W_MAX = .3
+W_MAX = .2
 
 # desired crusing velocity
-V_DES = 0.12
+V_DES = 0.08
 
 # gains of the path follower
 KPX = .5
@@ -93,6 +93,12 @@ class Navigator:
         rospy.Subscriber('/cmd_nav', Pose2D, self.cmd_nav_callback)
 
     def cmd_nav_callback(self, data):
+        if self.x_g != data.x or self.y_g != data.y:
+            # Reset plan and V_prev if cmd_nav changes
+            self.current_plan = []
+            self.V_prev = 0
+            self.V_prev_t = rospy.get_rostime()
+
         self.x_g = data.x
         self.y_g = data.y
         self.theta_g = data.theta
@@ -239,6 +245,7 @@ class Navigator:
                     cmd_msg.linear.x = 0
                     cmd_msg.angular.z = THETA_START_P * theta_err
                     self.nav_vel_pub.publish(cmd_msg)
+                    self.V_prev_t = rospy.get_rostime()
                     return
 
             # compute the "current" time along the path execution
