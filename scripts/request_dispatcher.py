@@ -9,7 +9,7 @@ use_gazebo = rospy.get_param("sim")
 mapping = rospy.get_param("map")
 
 # Thresholds for location
-POS_EPS = .35
+POS_EPS = .45
 THETA_EPS = 2*np.pi
 
 class RequestDispatcher:

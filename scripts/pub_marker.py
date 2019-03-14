@@ -41,7 +41,7 @@ class Turtlebot_Marker:
 		marker.color.b = 0.0
 		marker.color.a = 1.0
 		marker.pose.position.x = 0.0
-		marker.pose.position.y = -1.0
+		marker.pose.position.y = -1.5
 		marker.pose.position.z = 0.05
 		marker.lifetime = rospy.Duration(600)
 		marker.text=status

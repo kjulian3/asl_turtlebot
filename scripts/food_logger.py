@@ -14,7 +14,7 @@ import time
 import std_msgs.msg
 
 COCO_ITEMS = ['bottle', 'banana', 'apple', 'sandwich', 'orange',
-              'brocoli', 'carrot', 'hot_dog', 'pizza', 'donut',
+              'broccoli', 'carrot', 'hot_dog', 'pizza', 'donut',
               'cake', 'dog']
 
 class FoodLog:
