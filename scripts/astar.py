@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
 # Represents a motion planning problem to be solved using A*
-CLEAR_DIST = 0.15
+CLEAR_DIST = 0.35
 class AStar(object):
 
     def __init__(self, statespace_lo, statespace_hi, x_init, x_goal, occupancy, resolution=1):
@@ -33,8 +33,16 @@ class AStar(object):
     #          x - tuple state
     # OUTPUT: Boolean True/False
     def is_free(self, x):
+        #print("Current: %.2f, %.2f" % (x[0], x[1]))
+        #print("GOAL: %.2f, %.2f" % (self.x_goal[0], self.x_goal[1]))
         if (x[0] - self.x_goal[0])**2 + (x[1] - self.x_goal[1])**2 < CLEAR_DIST**2:
+            print("CLEARING A GOAL SPOT")
             return True
+
+        if (x[0] - self.x_init[0])**2 + (x[1] - self.x_init[1])**2 < CLEAR_DIST**2:
+            #print("CLEARING THE INIT SPOT")
+            return True
+
         if x==self.x_init or x==self.x_goal:
             return True
         for dim in range(len(x)):
@@ -169,7 +177,7 @@ class AStar(object):
                 self.came_from[nextX] = x_current
                 self.g_score[nextX] = tent_g
                 self.f_score[nextX] = tent_g + self.distance(nextX,self.x_goal)
-            print("Astar: open set length: " + str(len(self.open_set)))
+            #print("Astar: open set length: " + str(len(self.open_set)))
         return False
 
 # A 2D state space grid with a set of rectangular obstacles. The grid is fully deterministic
