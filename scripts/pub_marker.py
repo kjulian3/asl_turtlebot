@@ -24,6 +24,30 @@ class Turtlebot_Marker:
 		self.food_pub = rospy.Publisher("markers_food", MarkerArray, queue_size=10)
 		rospy.Subscriber('/food_locations', String, self.food_callback)
 
+		self.status_pub = rospy.Publisher("markers_status", Marker, queue_size=10)
+		rospy.Subscriber('/delivery_status', String, self.delivery_callback)
+
+	def delivery_callback(self, msg):
+		status = msg.data
+		marker = Marker()
+		marker.header.frame_id = "map"
+		marker.header.stamp = rospy.Time(0)
+		marker.ns = "status"
+		marker.action=Marker.ADD
+		marker.type=9
+		marker.scale.z = .2
+		marker.color.r = 0.0
+		marker.color.g = 0.6
+		marker.color.b = 0.0
+		marker.color.a = 1.0
+		marker.pose.position.x = 0.0
+		marker.pose.position.y = -4.0
+		marker.pose.position.z = 0.05
+		marker.lifetime = rospy.Duration(600)
+		marker.text=status
+		self.status_pub.publish(marker)
+
+
 
 
 	def food_callback(self,msg):
@@ -47,9 +71,9 @@ class Turtlebot_Marker:
 			marker.scale.y = .15
 			marker.scale.z = .01
 			marker.color.r = 1.0
-			marker.color.g = 0.0
-			marker.color.b = 0.0
-			marker.color.a = 1.0
+			marker.color.g = 0.5
+			marker.color.b = 0.5
+			marker.color.a = 0.8
 			marker.pose.position.x = x
 			marker.pose.position.y = y
 			marker.pose.position.z = 0.05
@@ -63,7 +87,7 @@ class Turtlebot_Marker:
 			marker.action=Marker.ADD
 			marker.type=9
 			marker.scale.z = .2
-			marker.color.r = 0.0
+			marker.color.r = 0.6
 			marker.color.g = 0.0
 			marker.color.b = 0.0
 			marker.color.a = 1.0
