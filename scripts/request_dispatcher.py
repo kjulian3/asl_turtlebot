@@ -9,7 +9,7 @@ use_gazebo = rospy.get_param("sim")
 mapping = rospy.get_param("map")
 
 # Thresholds for location
-POS_EPS = .25
+POS_EPS = .35
 THETA_EPS = 2*np.pi
 
 class RequestDispatcher:
@@ -53,8 +53,9 @@ class RequestDispatcher:
         if not self.request_received:
             # Reverse the order of the request so we can use pop to get
             # next item
-            self.request = msg.data.split(",")[::-1]
+            self.request = msg.data.split(",")
             self.request.append("home")
+            self.request.reverse()
             self.request_received = True
             self.current_item = self.request.pop()
             rospy.loginfo("Received order:")
