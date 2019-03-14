@@ -54,6 +54,7 @@ class RequestDispatcher:
             # Reverse the order of the request so we can use pop to get
             # next item
             self.request = msg.data.split(",")[::-1]
+            self.request.append("home")
             self.request_received = True
             self.current_item = self.request.pop()
             rospy.loginfo("Received order:")
