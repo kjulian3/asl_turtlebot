@@ -27,6 +27,8 @@ class RequestDispatcher:
         self.trans_listener = tf.TransformListener()
         # command pose for controller
         self.nav_pose_publisher = rospy.Publisher('/nav_pose', Pose2D, queue_size=10)
+        # Pickup status for rviz
+        self.delivery_status_publisher = rospy.Publisher('/delivery_status', String, queue_size=10)
         rospy.Subscriber('/delivery_request', String, self.process_request_callback)
         # TODO: check if this is the topic we're publishing to
         rospy.Subscriber('/food_locations', String, self.food_location_callback)
@@ -56,7 +58,9 @@ class RequestDispatcher:
             self.current_item = self.request.pop()
             rospy.loginfo("Received order:")
             rospy.loginfo("{}".format(str(self.request)))
-            rospy.loginfo("Picking up first item: {}".format(self.current_item))
+            msg = "Picking up first item: {}".format(self.current_item)
+            rospy.loginfo(msg)
+            self.delivery_status_publisher.publish(msg)
         else:
             rospy.loginfo("Courier is already handling a request, try again later")
 
@@ -73,7 +77,9 @@ class RequestDispatcher:
         if self.current_item in self.food_locations.keys():
             self.publish_goal_nav_pose(self.current_item)
         else:
-            rospy.loginfo("No location for {} is known. Looking for next item...".format(self.current_item))
+            mg = "No location for {} is known. Looking for next item...".format(self.current_item)
+            rospy.loginfo(msg)
+            self.delivery_status_publisher.publish(msg)
             # Skip the current item
             self.current_item = None
 
@@ -82,13 +88,24 @@ class RequestDispatcher:
         if self.current_item is not None:
             # If I am here, I know I have a current item and I know its location
             if self.has_picked_up() and len(self.request)>0:
-                rospy.loginfo("Picked up {}!".format(self.current_item))
-                self.current_item = self.request.pop()
-                rospy.loginfo("Picking up {}".format(self.current_item))
-
+                if len(self.request) == 1:
+                    msg = "Picked up last item: {}! Going home.".format(self.current_item)
+                    rospy.loginfo(msg)
+                    self.delivery_status_publisher.publish(msg)
+                    self.current_item = self.request.pop()
+                else:
+                    msg = "Picked up {}!".format(self.current_item)
+                    rospy.loginfo(msg)
+                    self.delivery_status_publisher.publish(msg)
+                    self.current_item = self.request.pop()
+                    msg = "Picking up {}".format(self.current_item)
+                    rospy.loginfo(msg)
+                    self.delivery_status_publisher.publish(msg)
             if self.has_picked_up() and len(self.request)==0:
-                rospy.loginfo("Picked up last item: {}!".format(self.current_item))
-                rospy.loginfo("Finished processing the request! Ready to accept new ones")
+                msg = "Finished processing the request! Ready to accept new ones"
+                rospy.loginfo(msg)
+                self.delivery_status_publisher.publish(msg)
+                rospy.loginfo(msg)
                 self.request_received = False
                 self.current_item = None
         # If we need to get the next item
