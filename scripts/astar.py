@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
 # Represents a motion planning problem to be solved using A*
+CLEAR_DIST = 0.15
 class AStar(object):
 
     def __init__(self, statespace_lo, statespace_hi, x_init, x_goal, occupancy, resolution=1):
@@ -32,6 +33,8 @@ class AStar(object):
     #          x - tuple state
     # OUTPUT: Boolean True/False
     def is_free(self, x):
+        if (x[0] - self.x_goal[0])**2 + (x[1] - self.x_goal[1])**2 < CLEAR_DIST**2:
+            return True
         if x==self.x_init or x==self.x_goal:
             return True
         for dim in range(len(x)):
@@ -139,6 +142,7 @@ class AStar(object):
 
         plt.axis('equal')
         plt.show()
+
 
     # Solves the planning problem using the A* search algorithm. It places
     # the solution as a list of of tuples (each representing a state) that go
