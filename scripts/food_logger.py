@@ -92,7 +92,7 @@ class FoodLog:
             # self.y_coords[i] = y_item_coord
             # self.max_confs[i] = msg.confidence
         else:
-            if True: #msg.confidence >= self.food_log[name][4]:
+            if msg.confidence >= self.food_log[name][4]:
                 print "Updating confidence of " , name
                 self.food_log[name] = [name, i, x_item_coord, y_item_coord, msg.confidence]
                 self.last_update_time = time.time()
