@@ -125,7 +125,7 @@ class PoseController:
             th_rot = wrapToPi(self.theta-self.theta_g)
             rho = linalg.norm(rel_coords) 
 
-            if (rho < 0.05) and (abs(th_rot) < 0.08):
+            if (rho < 0.07) and (abs(th_rot) < 0.08):
                 rospy.loginfo("Close to goal: commanding zero controls")
                 print(self.theta)
                 print(self.theta_g)
@@ -136,10 +136,16 @@ class PoseController:
                 cmd_x_dot = 0
                 cmd_theta_dot = 0
             else:
+                if (rho < 0.05):
+                    rho = 0.05
                 ang = np.arctan2(rel_coords_rot[1],rel_coords_rot[0])+np.pi 
                 angs = wrapToPi(np.array([ang-th_rot, ang])) 
                 alpha = angs[0] 
                 delta = angs[1] 
+
+                if (rho < 0.05):
+                    rho = 0.00
+                    alpha = 0.0
 
                 V = K1*rho*np.cos(alpha) 
                 om = K2*alpha + K1*np.sinc(2*alpha/np.pi)*(alpha+K3*delta) 
