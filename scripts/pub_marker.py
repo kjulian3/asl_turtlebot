@@ -37,11 +37,11 @@ class Turtlebot_Marker:
 		marker.type=9
 		marker.scale.z = .2
 		marker.color.r = 0.0
-		marker.color.g = 0.6
+		marker.color.g = 1.0
 		marker.color.b = 0.0
 		marker.color.a = 1.0
 		marker.pose.position.x = 0.0
-		marker.pose.position.y = -4.0
+		marker.pose.position.y = -1.0
 		marker.pose.position.z = 0.05
 		marker.lifetime = rospy.Duration(600)
 		marker.text=status
@@ -71,8 +71,8 @@ class Turtlebot_Marker:
 			marker.scale.y = .15
 			marker.scale.z = .01
 			marker.color.r = 1.0
-			marker.color.g = 0.5
-			marker.color.b = 0.5
+			marker.color.g = 165.0/255.0
+			marker.color.b = 0.0
 			marker.color.a = 0.8
 			marker.pose.position.x = x
 			marker.pose.position.y = y
@@ -87,7 +87,7 @@ class Turtlebot_Marker:
 			marker.action=Marker.ADD
 			marker.type=9
 			marker.scale.z = .2
-			marker.color.r = 0.6
+			marker.color.r = 0.5
 			marker.color.g = 0.0
 			marker.color.b = 0.0
 			marker.color.a = 1.0
